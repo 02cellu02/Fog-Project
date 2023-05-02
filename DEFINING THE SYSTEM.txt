@@ -1,0 +1,56 @@
+**********DEFINING THE SYSTEM******************
+
+
+No of fog nodes in the Fog federation
+
+No of Users connected to each fog node
+
+alpha[i][k]=application-specific ratio of output and input data size of kth user of node i
+
+capacity[i]=maximum amount of computing resources
+(i.e., total CPU cycles per slot)  available at the fog node, i.
+
+clock_speed_user[i][k]= CPU clock speed for kth user(GHz) of node i
+
+clock_speed_fog[i]=CPU clock speed for the fog node i
+
+upload_rate[i][k]=upload rate(mb/s) for kth user of node i
+
+download_rate[i][k]=download rate(mb/s) for kth user of node i
+
+
+
+
+
+************INPUT********************************
+
+input_data[i][k]=input data of each user = KB
+
+clock_cycles[i][k]=the number of CPU cycles per bit to compute the input task data of kth user(cycles/bit) of fog node i
+
+
+
+************CALCULATION*************************
+
+beta[i][k]= (1/upload_rate[i][k])+(alpha[i][k]/download_rate[i][k])+(clock_cycles[i][k]/clock_speed_fog[i])
+
+offload_data[i][k]=offloaded data = (clock_cycles[i][k]* input_data[i][k])/(beta[i][k]*clock_speed_fog[i]+clock_cylces[i][k])
+	
+weight[i][k]= amount of computing resources req for the task  of kth end user of fog node i = (offload_data[i][k]*clock_cylces[i][k])
+
+*******************************************************
+
+objective :for each node i, maximize(sigma_k=1^n(weight[k][i]))
+
+constraint: sigma_k=1^n(weight[k][i])<=capacity[i]
+
+
+
+********************************************************
+
+Returns a set of weights for each node i,
+
+
+
+
+
