@@ -124,6 +124,10 @@ def solveMultiKnapsack(initNoOfKnapsack,init_capacity,noOfItems,weights):
     noOfKnapsacks=initNoOfKnapsack
     capacity=init_capacity#int(input(">>> Enter capacity of knapsack: "))
     n=noOfItems#int(input(">>> Enter no of items: "))
+    if n==1:
+        for i in range(noOfKnapsacks):
+            if fitness(str(i+1)) !=0:
+                return(str(i+1),fitness(str(i+1)))
     # itemsString=input(">>> Enter items:    ")
     items=weights  #list(map(int, itemsString.split(' ')))
     # items=[int(input(f">>>enter item {i+1}: ")) for i in range(n)]
