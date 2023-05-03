@@ -3,6 +3,14 @@ from multi_knapsack_gen_algo_2 import solveMultiKnapsack
 from or_tool1 import main
 import random
 
+def findMaximumTime(answer, t):
+    maxTime = 0
+    for i, a in enumerate(answer):
+        for j, c in enumerate(a[0]):
+            if c=='1':
+                maxTime = max(maxTime, t[i][j])
+    return maxTime
+
 def remainItems(item,nodeIdx):
     remUsers=[]
     for i in range(len(item)):
@@ -74,6 +82,7 @@ def main(capacity):
     for i in range(noOfFogNodes):
         print(f"Set of users for node {i+1}:    {answer[i][0]}")
     # print(answer)
+    findMaximumTime(answer,time_cpu_user)
 
     newCapacity=[]
     remUsersWeights=[[] for i in range(noOfFogNodes)]
