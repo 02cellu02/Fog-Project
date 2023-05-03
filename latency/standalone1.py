@@ -22,7 +22,7 @@ def main(capacity):
     global weights
     noOfFogNodes=3
     noOfEndUsers=[]
-   
+    standTime=0
     for i in range(noOfFogNodes):
         noOfEndUsers.append(random.randint(10,30*(i+1)))
     alpha=0.2
@@ -72,50 +72,60 @@ def main(capacity):
             m[i].append(clock_cycles[i][j]*input_data[i][j]*(8*(10**3))/((beta[i][j]*clock_speed_user[i][j]*(10**9))+clock_cycles[i][j]))
             weights[i].append(m[i][j]*clock_cycles[i][j])
             time_cpu_user[i].append(clock_cycles[i][j]*(input_data[i][j]-m[i][j])/clock_speed_user)
-        
-        answer.append(solveKnapsack(capacity[i],noOfEndUsers[i],weights[i]))
-    for i in range(noOfFogNodes):
-        print(f"capacity of fog node {i+1}:   {capacity[i]}")
-        for j in range(noOfEndUsers[i]):
-            print(f"computational resources req for end user {j+1}: {weights[i][j]}")
-    print('Standalone Fog node....')
-    for i in range(noOfFogNodes):
-        print(f"Set of users for node {i+1}:    {answer[i][0]}")
-    # print(answer)
-    findMaximumTime(answer,time_cpu_user)
+    while True:
+        flag=0
+        for i in range(noOfFogNodes):
+            answer.append(solveKnapsack(capacity[i],noOfEndUsers[i],weights[i]))
+        for i in range(noOfFogNodes):
+            print(f"capacity of fog node {i+1}:   {capacity[i]}")
+            for j in range(noOfEndUsers[i]):
+                print(f"computational resources req for end user {j+1}: {weights[i][j]}")
+        print('Standalone Fog node....')
+        for i in range(noOfFogNodes):
+            print(f"Set of users for node {i+1}:    {answer[i][0]}")
+        # print(answer)
+        standTime+=findMaximumTime(answer,time_cpu_user)
 
-    newCapacity=[]
-    remUsersWeights=[[] for i in range(noOfFogNodes)]
-    remNodes=0
-    standAloneRevenue=0
-    for idx,value in enumerate(answer):
-        standAloneRevenue+=value[1]
-        y=  remainItems(value[0],idx)
-        if value[1]==0:
-            newCapacity.append(capacity[idx])
-            remNodes+=1
-            remUsersWeights+=weights[idx]
-            continue
-        if y:
-            remUsersWeights+=y#adding remaining uses of fog node [idx]
-        else:
-            print("all users offloade their data to primary fog node")
-            
-        if value[1]<capacity[idx]:
-            newCapacity.append(capacity[idx]-value[1])
-            remNodes+=1
-    print(f"No of nodes having remaing computational resources :    {remNodes}")
-    print(f"No of users who haven't offloaded to the primary fog node: {len(remUsersWeights)}")
-    for i in range(remNodes):
-        print(f"capacity for new fog Node {i+1}:    {newCapacity[i]}")
-    for i in range(len(remUsersWeights)):
-        print(f"computational resources req for new user {i+1}:  {remUsersWeights[i]}")
-    if not remNodes or not remUsersWeights:
-        return (standAloneRevenue,standAloneRevenue)
-    migrated_users,revenue_fed=solveMultiKnapsack(remNodes,newCapacity,len(remUsersWeights),remUsersWeights)
-    print(f"set of users who offloaded to secondary node:   {migrated_users}")
-    if not revenue_fed:
-        return (standAloneRevenue,standAloneRevenue)
-    return (standAloneRevenue,revenue_fed+standAloneRevenue)
+        newCapacity=[]
+        remUsersWeights=[[] for i in range(noOfFogNodes)]
+        remNodes=0
+        standAloneRevenue=0
+        for idx,value in enumerate(answer):
+            standAloneRevenue+=value[1]
+            y=  remainItems(value[0],idx)
+            if value[1]==0:
+                newCapacity.append(capacity[idx])
+                remNodes+=1
+                remUsersWeights[idx].append(weights[idx])
+                
+                flag=1
+                continue
+            if y:
+                remUsersWeights[idx].append(y)#adding remaining uses of fog node [idx]
+                noOfEndUsers[idx]=len(y)
+                flag=1
+            else:
+                print("all users offloade their data to primary fog node")
+        if not flag :
+            break
+        weights=remUsersWeights
+    return standTime
+
+        #     if value[1]<capacity[idx]:
+        #         newCapacity.append(capacity[idx]-value[1])
+        #         remNodes+=1
+        # print(f"No of nodes having remaing computational resources :    {remNodes}")
+        # print(f"No of users who haven't offloaded to the primary fog node: {len(remUsersWeights)}")
+        # for i in range(remNodes):
+        #     print(f"capacity for new fog Node {i+1}:    {newCapacity[i]}")
+        # for i in range(len(remUsersWeights)):
+        #     print(f"computational resources req for new user {i+1}:  {remUsersWeights[i]}")
+        # if not remNodes or not remUsersWeights:
+        #     return (standAloneRevenue,standAloneRevenue)
+        # migrated_users,revenue_fed=solveMultiKnapsack(remNodes,newCapacity,len(remUsersWeights),remUsersWeights)
+        # print(f"set of users who offloaded to secondary node:   {migrated_users}")
+        # if not revenue_fed:
+        #     return (standAloneRevenue,standAloneRevenue)
+        # return (standAloneRevenue,revenue_fed+standAloneRevenue)
 
     
